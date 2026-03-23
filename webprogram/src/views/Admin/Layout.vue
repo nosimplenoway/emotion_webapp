@@ -5,21 +5,22 @@
       <nav>
         <router-link to="/admin" class="nav-item">首页</router-link>
         <router-link to="/admin/users" class="nav-item">用户管理</router-link>
-        <router-link to="/admin/roles" class="nav-item">角色管理</router-link>
-        <router-link to="/admin/permissions" class="nav-item">权限管理</router-link>
-        <router-link to="/admin/system" class="nav-item">系统管理</router-link>
+        <router-link to="/admin/roles" class="nav-item">角色与权限</router-link>
+  <router-link to="/admin/permissions" class="nav-item">日志管理</router-link>
+  <router-link to="/admin/system" class="nav-item">组织管理</router-link>
       </nav>
     </aside>
 
     <div class="main">
       <header class="header">
-        <div></div>
-        <div>
-          <button class="logout" @click="logout">退出登录</button>
+        <div class="header-left"><strong>欢迎，管理员</strong></div>
+        <div class="actions">
+          <div class="username">Admin</div>
+          <button class="btn btn-ghost" @click="logout">退出登录</button>
         </div>
       </header>
 
-      <section class="container">
+      <section class="container-pad">
         <router-view />
       </section>
     </div>
@@ -38,12 +39,11 @@ function logout(){
 
 <style scoped>
 .admin-root{display:flex;height:100vh}
-.sidebar{width:220px;background:#1f2d3d;color:#fff;padding:20px 12px;box-sizing:border-box}
-.brand{font-weight:700;margin-bottom:18px}
-.nav-item{display:block;color:#cbd6df;padding:10px;border-radius:4px;margin:6px 0;text-decoration:none}
-.nav-item.router-link-active{background:rgba(255,255,255,0.06);color:#fff}
+.sidebar{width:240px}
+.brand{font-weight:700}
+.nav-item{display:block}
 .main{flex:1;display:flex;flex-direction:column}
-.header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #eee}
-.container{padding:18px;overflow:auto}
-.logout{background:#ff4d4f;border:none;color:#fff;padding:8px 12px;border-radius:4px;cursor:pointer}
+.header{height:64px}
+.header .actions{display:flex;gap:12px;align-items:center}
+.container-pad{padding:22px}
 </style>
