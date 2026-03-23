@@ -1,0 +1,187 @@
+/* 页面根容器 */
+.login-page {
+  width: 100vw;
+  min-height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 顶部渐变区域（和图片一致的浅绿色） */
+.top-section {
+  width: 100%;
+  height: 320rpx;
+  background: linear-gradient(0deg, #b2f5ea 0%, #86efac 100%);
+  position: relative;
+}
+
+/* 顶部图标+文字 */
+.top-content {
+  display: flex;
+  align-items: center;
+  padding: 90rpx 60rpx 0;
+  position: relative;
+  z-index: 10;
+}
+
+/* 双心形图标（和图片一致） */
+.heart-group {
+  position: relative;
+  width: 90rpx;
+  height: 90rpx;
+  margin-right: 25rpx;
+}
+.heart-bg {
+  position: absolute;
+  left: 5rpx;
+  top: 5rpx;
+  width: 60rpx;
+  height: 60rpx;
+  background: #a7f3d0;
+  border-radius: 12rpx;
+  transform: rotate(-45deg);
+}
+.heart-main {
+  position: absolute;
+  left: 20rpx;
+  top: 20rpx;
+  width: 60rpx;
+  height: 60rpx;
+  background: #0d9488;
+  border-radius: 12rpx;
+  transform: rotate(-45deg);
+}
+.heart-main::after {
+  content: '';
+  position: absolute;
+  right: 12rpx;
+  top: 16rpx;
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+/* 欢迎文字（和图片一致的颜色、大小） */
+.text-group {
+  display: flex;
+  flex-direction: column;
+}
+.greet-text {
+  font-size: 38rpx;
+  color: #065f46;
+  margin-bottom: 12rpx;
+}
+.welcome-text {
+  font-size: 34rpx;
+  color: #065f46;
+}
+
+/* 顶部波浪（浅蓝色+白色，和图片完全一致） */
+.wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 120rpx;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+.wave-blue {
+  background: #cffafe;
+  transform: scaleX(1.3) translateY(20rpx);
+  z-index: 1;
+}
+.wave-white {
+  background: #ffffff;
+  transform: scaleX(1.5);
+  z-index: 2;
+}
+
+/* 表单区域 */
+.form-section {
+  padding: 70rpx 60rpx 0;
+  flex: 1;
+}
+
+/* 输入框样式（和图片一致的圆角、浅绿背景） */
+.input-item {
+  display: flex;
+  align-items: center;
+  background: #ecfdf5;
+  border-radius: 60rpx;
+  padding: 28rpx 35rpx;
+  margin-bottom: 35rpx;
+}
+.icon {
+  width: 42rpx;
+  height: 42rpx;
+  margin-right: 25rpx;
+}
+.phone-icon {
+  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwIDJDNi42ODYyOSAyIDQgNC42ODYyOSA0IDhDNCAxMS4zMTM3IDYuNjg2MjkgMTQgMTAgMTRDMTMuMzEzNyAxNCAxNiAxMS4zMTM3IDE2IDhDMTYgNC42ODYyOSAxMy4zMTM3IDIgMTAgMloiIGZpbGw9IiM5Y2E1YWEiLz4KPC9zdmc+') no-repeat center;
+  background-size: contain;
+}
+.lock-icon {
+  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwIDJDNi42ODYyOSAyIDQgNC42ODYyOSA0IDhWMTJDNCAxNS4zMTM3IDYuNjg2MjkgMTggMTAgMThDMTMuMzEzNyAxOCAxNiAxNS4zMTM3IDE2IDEyVjhDMTYgNC42ODYyOSAxMy4zMTM3IDIgMTAgMloiIGZpbGw9IiM5Y2E1YWEiLz4KPC9zdmc+') no-repeat center;
+  background-size: contain;
+}
+.input {
+  flex: 1;
+  font-size: 32rpx;
+  color: #6b7280;
+}
+.input::placeholder {
+  color: #9ca3af;
+}
+
+/* 忘记密码（和图片一致的位置、颜色） */
+.forget-wrap {
+  text-align: right;
+  margin-bottom: 60rpx;
+  padding-right: 10rpx;
+}
+.forget-text {
+  font-size: 28rpx;
+  color: #059669;
+}
+
+/* 登录按钮（和图片一致的绿色圆角） */
+.login-btn {
+  background: #4ade80;
+  border-radius: 60rpx;
+  padding: 32rpx 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-text {
+  font-size: 38rpx;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* 底部绿色波浪（和图片完全一致） */
+.bottom-waves {
+  position: relative;
+  height: 220rpx;
+  margin-top: auto;
+}
+.wave-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 200rpx;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+.wave-b1 {
+  background: #4ade80;
+  transform: scaleX(1.6) translateY(30rpx);
+  z-index: 1;
+}
+.wave-b2 {
+  background: #22c55e;
+  transform: scaleX(1.4);
+  z-index: 2;
+}

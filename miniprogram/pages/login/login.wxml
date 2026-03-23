@@ -1,0 +1,50 @@
+<view class="login-page">
+  <!-- 顶部渐变区域（绿色+浅蓝色波浪） -->
+  <view class="top-section">
+    <!-- 图标+欢迎文字 -->
+    <view class="top-content">
+      <view class="heart-group">
+        <view class="heart-bg"></view>
+        <view class="heart-main"></view>
+      </view>
+      <view class="text-group">
+        <text class="greet-text">您好，</text>
+        <text class="welcome-text">欢迎使用情绪管理系统</text>
+      </view>
+    </view>
+    <!-- 双层波浪（浅蓝色+白色，和图片完全一致） -->
+    <view class="wave wave-blue" style="position: absolute; left: -100rpx; top: 182rpx"></view>
+    
+  </view>
+
+  <!-- 表单区域 -->
+  <view class="form-section" style="position: absolute; left: 74rpx; top: 389rpx">
+    <!-- 手机号输入框 -->
+    <view class="input-item">
+      <view class="icon phone-icon"></view>
+      <input class="input" placeholder="请输入手机号" type="number" bindinput="onPhoneInput" />
+    </view>
+
+    <!-- 密码输入框 -->
+    <view class="input-item">
+      <view class="icon lock-icon"></view>
+      <input class="input" placeholder="请输入密码" password bindinput="onPwdInput" />
+    </view>
+
+    <!-- 忘记密码 -->
+    <view class="forget-wrap">
+      <text class="forget-text" bindtap="goForgetPwd">忘记密码？</text>
+    </view>
+
+    <!-- 登录按钮 -->
+    <view class="login-btn" bindtap="onLogin">
+      <text class="btn-text">登录</text>
+    </view>
+  </view>
+
+  <!-- 底部绿色波浪（和图片完全一致） -->
+  <view class="bottom-waves">
+    <view class="wave-bottom wave-b1"></view>
+    <view class="wave-bottom wave-b2"></view>
+  </view>
+</view>
