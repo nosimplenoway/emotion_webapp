@@ -3,10 +3,14 @@
     <h2>组织管理</h2>
     <div class="card" style="margin-top:12px">
       <p>在此管理组织结构（学院 / 班级）与成员的归属关系（示例界面）。</p>
-      <div style="margin-top:12px;display:flex;gap:12px;align-items:center">
-        <button class="btn btn-primary" @click="addOrg">添加组织</button>
-        <input class="search" v-model="q" placeholder="搜索组织或成员" />
-        <button class="btn btn-ghost" @click="search">查询</button>
+      <div class="top-controls" style="margin-top:12px">
+        <div class="left">
+          <input class="search" v-model="q" placeholder="搜索组织或成员" />
+          <button class="btn btn-ghost" @click="search">查询</button>
+        </div>
+        <div class="right">
+          <button class="btn btn-primary" @click="addOrg">添加组织</button>
+        </div>
       </div>
 
       <div style="margin-top:16px">
