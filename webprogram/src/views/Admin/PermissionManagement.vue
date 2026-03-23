@@ -2,12 +2,14 @@
   <div class="container">
     <h2>日志管理</h2>
     <div class="card" style="margin-top:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div>
+      <div class="top-controls">
+        <div class="left">
+          <input class="search" placeholder="按用户/操作/时间搜索" v-model="q" />
+        </div>
+        <div class="right">
           <button class="btn btn-ghost" @click="refresh">刷新</button>
           <button class="btn btn-ghost" @click="exportLogs">导出</button>
         </div>
-        <input class="search" placeholder="按用户/操作/时间搜索" v-model="q" />
       </div>
 
       <table class="table">

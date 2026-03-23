@@ -4,47 +4,53 @@
       <h2>角色与权限管理</h2>
     </div>
 
-    <div class="card" style="margin-top:12px;display:flex;gap:18px">
-      <!-- left: controls -->
-      <div style="flex:0 0 320px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-          <button class="btn btn-primary" @click="openAdd">新增+</button>
-          <input class="search" v-model="searchKey" placeholder="按角色名称" />
-          <button class="btn btn-ghost" @click="doQuery">查询</button>
+    <div class="card" style="margin-top:12px;">
+        <div class="top-controls horizontal" style="padding:18px 12px;align-items:center">
+        <div class="left" style="display:flex;align-items:center;gap:10px;flex:1">
+          <input class="search" v-model="searchKey" placeholder="按角色名称 / 支持模糊搜索" />
+          <button class="btn btn-search" @click="doQuery">查询</button>
         </div>
-
-        <div style="margin-top:8px">
-          <h4 style="margin:0 0 8px 0">角色一览</h4>
-          <ul style="list-style:none;padding:0;margin:0">
-            <li v-for="r in roles" :key="r.id" style="padding:8px 6px;border-bottom:1px solid var(--surface-border);display:flex;justify-content:space-between;align-items:center">
-              <div>
-                <div style="font-weight:600">{{r.name}}</div>
-                <div style="font-size:12px;color:var(--muted)">{{r.desc}}</div>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
-                <div style="font-size:12px;color:var(--muted)">创建：{{r.createdAt}}</div>
-                <div style="font-size:12px;color:var(--muted)">更新：{{r.updatedAt}}</div>
-              </div>
-            </li>
-          </ul>
+        <div class="right">
+          <button class="btn btn-add" @click="openAdd">+ 新增角色</button>
         </div>
       </div>
 
-      <!-- right: details table -->
-      <div style="flex:1">
+      <div style="padding:12px 18px">
         <table class="table">
-          <thead><tr><th>名称</th><th>描述</th><th>创建时间</th><th>修改时间</th><th>状态</th><th>操作</th></tr></thead>
+          <thead>
+            <tr>
+              <th style="width:220px">名称</th>
+              <th>创建时间</th>
+              <th>修改时间</th>
+              <th style="width:120px">状态</th>
+              <th style="width:360px"> 操作</th>
+            </tr>
+          </thead>
           <tbody>
             <tr v-for="r in filteredRoles" :key="r.id">
-              <td>{{r.name}}</td>
-              <td>{{r.desc}}</td>
-              <td>{{r.createdAt}}</td>
-              <td>{{r.updatedAt}}</td>
+              <td class="role-name-cell">{{ r.name }}</td>
+              <td>{{ r.createdAt }}</td>
+              <td>{{ r.updatedAt }}</td>
               <td><span :class="r.disabled ? 'status-disabled' : 'status-normal'">{{ r.disabled ? '禁用' : '正常' }}</span></td>
-              <td>
-                <button class="btn btn-ghost" @click="viewDetails(r)">角色详情</button>
-                <button class="btn btn-ghost" @click="toggleStatus(r)">{{ r.disabled ? '启用' : '禁用' }}</button>
-                <button class="btn btn-ghost" @click="openEdit(r)">编辑</button>
+              <td class="actions">
+                <button class="btn btn-outline" @click="viewDetails(r)">
+                  <span class="icon" aria-hidden>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.2"/><path d="M12 8v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+                  </span>
+                  <span class="text">角色详情</span>
+                </button>
+                <button :class="['btn', r.disabled ? 'btn-success' : 'btn-danger']" @click="toggleStatus(r)">
+                  <span class="icon" aria-hidden>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M5 9a7 7 0 1 0 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="text">{{ r.disabled ? '启用' : '禁用' }}</span>
+                </button>
+                <button class="btn btn-primary-outline" @click="openEdit(r)">
+                  <span class="icon" aria-hidden>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21l3-1 11-11a2.828 2.828 0 0 0 0-4l-1-1a2.828 2.828 0 0 0-4 0L3 16v5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="text">编辑</span>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -235,7 +241,26 @@ const filteredRoles = computed(() => {
 <style scoped>
 .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:12px}
 .table{width:100%;border-collapse:collapse;background:transparent}
-.table th,.table td{padding:12px;border-bottom:1px solid var(--surface-border);text-align:left}
-.status-normal{color:var(--accent);font-weight:600}
-.status-disabled{color:#ff4d4f;font-weight:600}
+.table th,.table td{padding:12px 10px;border-bottom:1px solid var(--surface-border);text-align:left}
+.status-normal{color:var(--accent);font-weight:700;background:linear-gradient(180deg,#e9fff4,#f6fff9);padding:6px 8px;border-radius:12px;display:inline-block}
+.status-disabled{color:#ff4d4f;font-weight:700;background:#fff0f0;padding:6px 8px;border-radius:12px;display:inline-block}
+
+.top-controls.horizontal{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.top-controls .left{display:flex;gap:8px;align-items:center;flex:1}
+.search{padding:10px 12px;border-radius:10px;border:1px solid var(--surface-border);width:260px;min-width:160px;max-width:380px}
+.btn-add{background:linear-gradient(180deg,#0fb07a,#0aa36b);color:#fff;border:none;padding:10px 16px;border-radius:24px;box-shadow:0 4px 12px rgba(10,163,107,0.12);}
+.role-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.role-name-cell{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actions{display:flex;gap:12px;align-items:center;justify-content:center}
+.btn-outline{background:#fff;border:1px solid rgba(0,0,0,0.06);padding:8px 12px;border-radius:12px;color:var(--text);display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center}
+.btn-danger{background:#fff;border:1px solid #ff4d4f;color:#ff4d4f;padding:8px 12px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center}
+.btn-success{background:#e9fff4;border:1px solid #0aa36b;color:#0aa36b;padding:8px 12px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center}
+.btn-primary-outline{background:#fff;border:1px solid #0aa36b;color:#0aa36b;padding:8px 12px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center}
+.btn .icon{display:inline-flex;align-items:center;justify-content:center;color:inherit}
+.btn .text{display:inline-block}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(10,163,107,0.06)}
+
+.btn-search{background:#fff;border:1px solid rgba(10,163,107,0.12);color:#0aa36b;padding:8px 12px;border-radius:12px;box-shadow:0 2px 6px rgba(10,163,107,0.06)}
+.search{min-width:320px}
+
 </style>

@@ -4,9 +4,13 @@
       <h2>用户管理</h2>
     </div>
     <div class="card" style="margin-top:12px">
-      <div class="toolbar">
-        <button class="btn btn-primary" @click="openAdd">添加用户</button>
-        <input class="search" placeholder="搜索用户手机号或姓名" v-model="q" />
+      <div class="top-controls">
+        <div class="left">
+          <input class="search" placeholder="搜索用户手机号或姓名" v-model="q" />
+        </div>
+        <div class="right">
+          <button class="btn btn-primary" @click="openAdd">添加用户</button>
+        </div>
       </div>
 
       <table class="table">
