@@ -16,6 +16,10 @@
       </div>
 
       <div style="padding:12px 18px">
+        <div class="top-meta" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="color:var(--muted)">共 <strong>{{ filteredRoles.length }}</strong> 个角色</div>
+          <div style="color:var(--muted);font-size:13px">Tip: 点击“角色详情”查看描述与权限</div>
+        </div>
         <table class="table">
           <thead>
             <tr>
@@ -27,12 +31,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="r in filteredRoles" :key="r.id">
-              <td class="role-name-cell">{{ r.name }}</td>
-              <td>{{ r.createdAt }}</td>
-              <td>{{ r.updatedAt }}</td>
-              <td><span :class="r.disabled ? 'status-disabled' : 'status-normal'">{{ r.disabled ? '禁用' : '正常' }}</span></td>
-              <td class="actions">
+            <tr v-for="r in filteredRoles" :key="r.id" v-show="!loading">
+              <td class="role-name-cell" data-title="名称"><span v-html="highlightName(r.name)"></span></td>
+              <td data-title="创建时间">{{ r.createdAt }}</td>
+              <td data-title="修改时间">{{ r.updatedAt }}</td>
+              <td data-title="状态"><span :class="r.disabled ? 'status-disabled' : 'status-normal'">{{ r.disabled ? '禁用' : '正常' }}</span></td>
+              <td class="actions" data-title="操作">
                 <button class="btn btn-outline" @click="viewDetails(r)">
                   <span class="icon" aria-hidden>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.2"/><path d="M12 8v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
@@ -51,6 +55,27 @@
                   </span>
                   <span class="text">编辑</span>
                 </button>
+              </td>
+            </tr>
+            <!-- loading skeleton -->
+            <tr v-if="loading">
+              <td colspan="5">
+                <div style="display:flex;gap:12px;align-items:center">
+                  <div style="width:220px;height:18px" class="skeleton"></div>
+                  <div style="width:100px;height:18px" class="skeleton"></div>
+                  <div style="width:100px;height:18px" class="skeleton"></div>
+                  <div style="width:80px;height:18px" class="skeleton"></div>
+                </div>
+              </td>
+            </tr>
+            <!-- empty state -->
+            <tr v-if="!loading && filteredRoles.length===0">
+              <td colspan="5">
+                <div class="empty-state">
+                  <strong>未找到匹配的角色</strong>
+                  <div style="margin-bottom:12px">尝试更宽泛的关键词，或新建一个角色。</div>
+                  <button class="btn btn-primary" @click="openAdd">+ 新建角色</button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -132,6 +157,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import Modal from '../../components/Modal.vue'
+
+// UI state
+const loading = ref(false)
 
 // permissions items structured per requirement (user management & role management)
 const permissions = ref([
@@ -229,13 +257,29 @@ function toggleStatus(r){ r.disabled = !r.disabled; r.updatedAt = new Date().toI
 // search / query
 function doQuery(){
   const kw = searchKey.value.trim().toLowerCase()
-  if (!kw) { searchResult.value = null; return }
-  searchResult.value = roles.value.filter(r => r.name.toLowerCase().includes(kw))
+  // simple loading micro-interaction
+  loading.value = true
+  setTimeout(() => {
+    if (!kw) { searchResult.value = null; loading.value = false; return }
+    searchResult.value = roles.value.filter(r => r.name.toLowerCase().includes(kw))
+    loading.value = false
+  }, 240)
 }
 
 const filteredRoles = computed(() => {
   return searchResult.value !== null ? searchResult.value : roles.value
 })
+
+// highlight matched substring in name for search guidance
+function highlightName(name){
+  const kw = searchKey.value.trim()
+  if (!kw) return name
+  try{
+    const esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const re = new RegExp(`(${esc})`, 'ig')
+    return name.replace(re, '<mark>$1</mark>')
+  }catch(e){ return name }
+}
 </script>
 
 <style scoped>
@@ -256,9 +300,28 @@ const filteredRoles = computed(() => {
 .btn-danger{background:#fff;border:1px solid #ff4d4f;color:#ff4d4f;padding:8px 12px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center}
 .btn-success{background:#e9fff4;border:1px solid #0aa36b;color:#0aa36b;padding:8px 12px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center}
 .btn-primary-outline{background:#fff;border:1px solid #0aa36b;color:#0aa36b;padding:8px 12px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center}
+/* button icon + text layout */
 .btn .icon{display:inline-flex;align-items:center;justify-content:center;color:inherit}
 .btn .text{display:inline-block}
 .btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(10,163,107,0.06)}
+
+/* Responsive: convert table rows into stacked cards on small screens */
+@media (max-width:800px){
+  .top-controls.horizontal{flex-direction:column;align-items:stretch;gap:12px}
+  .top-controls .left{width:100%}
+  .top-controls .right{width:100%;display:flex;justify-content:flex-end}
+
+  /* hide table header and render each row as a card */
+  .table thead{display:none}
+  .table tbody tr{display:block;background:var(--card);border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .table tbody td{display:flex;justify-content:space-between;padding:8px 6px;border-bottom:none}
+  .table tbody td::before{content:attr(data-title);color:var(--muted);font-size:12px;margin-right:8px}
+
+  /* action buttons: show icon-only to save space */
+  .btn .text{display:none}
+  .btn{padding:8px;border-radius:10px}
+  .actions{justify-content:flex-end;gap:8px}
+}
 
 .btn-search{background:#fff;border:1px solid rgba(10,163,107,0.12);color:#0aa36b;padding:8px 12px;border-radius:12px;box-shadow:0 2px 6px rgba(10,163,107,0.06)}
 .search{min-width:320px}
