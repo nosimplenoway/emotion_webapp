@@ -43,13 +43,13 @@
                   </span>
                   <span class="text">角色详情</span>
                 </button>
-                <button :class="['btn', r.disabled ? 'btn-success' : 'btn-danger']" @click="toggleStatus(r)">
+                <button :class="[ 'btn', r.disabled ? 'btn-success-filled' : 'btn-danger-filled' ]" @click="toggleStatus(r)">
                   <span class="icon" aria-hidden>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M5 9a7 7 0 1 0 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </span>
                   <span class="text">{{ r.disabled ? '启用' : '禁用' }}</span>
                 </button>
-                <button class="btn btn-primary-outline" @click="openEdit(r)">
+                <button class="btn btn-primary-filled" @click="openEdit(r)">
                   <span class="icon" aria-hidden>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21l3-1 11-11a2.828 2.828 0 0 0 0-4l-1-1a2.828 2.828 0 0 0-4 0L3 16v5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </span>
@@ -296,10 +296,11 @@ function highlightName(name){
 .role-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .role-name-cell{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .actions{display:flex;gap:12px;align-items:center;justify-content:center}
-.btn-outline{background:#fff;border:1px solid rgba(0,0,0,0.06);padding:8px 12px;border-radius:12px;color:var(--text);display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center}
-.btn-danger{background:#fff;border:1px solid #ff4d4f;color:#ff4d4f;padding:8px 12px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center}
-.btn-success{background:#e9fff4;border:1px solid #0aa36b;color:#0aa36b;padding:8px 12px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center}
-.btn-primary-outline{background:#fff;border:1px solid #0aa36b;color:#0aa36b;padding:8px 12px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center}
+.btn-outline{background:#fbfdfe;border:1px solid rgba(15,23,36,0.06);padding:8px 12px;border-radius:12px;color:var(--text);display:inline-flex;align-items:center;gap:8px;min-width:88px;justify-content:center}
+.btn-danger-filled{background:#ff4d4f;color:#fff;padding:10px 14px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center;border:none;box-shadow:0 8px 20px rgba(255,77,79,0.12)}
+.btn-success-filled{background:linear-gradient(180deg,#10b981,#059669);color:#fff;padding:10px 14px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center;border:none;box-shadow:0 8px 20px rgba(16,185,129,0.12)}
+.btn-primary-filled{background:linear-gradient(180deg,#3b82f6,#2563eb);color:#fff;padding:10px 14px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:92px;justify-content:center;border:none;box-shadow:0 8px 20px rgba(37,99,235,0.12)}
+.btn-primary-outline{background:#fff;border:1px solid #3b82f6;color:#2563eb;padding:8px 12px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;min-width:88px;justify-content:center}
 /* button icon + text layout */
 .btn .icon{display:inline-flex;align-items:center;justify-content:center;color:inherit}
 .btn .text{display:inline-block}
@@ -323,7 +324,7 @@ function highlightName(name){
   .actions{justify-content:flex-end;gap:8px}
 }
 
-.btn-search{background:#fff;border:1px solid rgba(10,163,107,0.12);color:#0aa36b;padding:8px 12px;border-radius:12px;box-shadow:0 2px 6px rgba(10,163,107,0.06)}
-.search{min-width:320px}
+.btn-search{background:linear-gradient(180deg,#3b82f6,#2563eb);color:#fff;padding:8px 12px;border-radius:12px;border:none;box-shadow:0 6px 18px rgba(37,99,235,0.12)}
+.search{min-width:220px}
 
 </style>

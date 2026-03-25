@@ -3,7 +3,7 @@
     <aside class="sidebar">
       <div class="brand">情绪管理后台</div>
       <nav>
-        <router-link to="/admin" class="nav-item">
+  <router-link to="/admin" class="nav-item" exact-active-class="router-link-active">
           <span class="icon" aria-hidden>
             <!-- home icon -->
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 10.5L12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V10.5z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -11,7 +11,7 @@
           <span class="label">首页</span>
         </router-link>
 
-        <router-link to="/admin/users" class="nav-item">
+  <router-link to="/admin/users" class="nav-item" active-class="router-link-active">
           <span class="icon" aria-hidden>
             <!-- users icon -->
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 11c1.657 0 3-1.567 3-3.5S17.657 4 16 4s-3 1.567-3 3.5S14.343 11 16 11zM8 11c1.657 0 3-1.567 3-3.5S9.657 4 8 4 5 5.567 5 7.5 6.343 11 8 11z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 20a6 6 0 0 1 6-6h8a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -19,7 +19,7 @@
           <span class="label">用户管理</span>
         </router-link>
 
-        <router-link to="/admin/roles" class="nav-item">
+  <router-link to="/admin/roles" class="nav-item" active-class="router-link-active">
           <span class="icon" aria-hidden>
             <!-- roles icon -->
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3 6 6 .5-4.5 3.5L19 20l-7-4-7 4 .5-8-4.5-3.5L9 8 12 2z" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/></svg>
@@ -27,7 +27,7 @@
           <span class="label">角色与权限</span>
         </router-link>
 
-        <router-link to="/admin/permissions" class="nav-item">
+  <router-link to="/admin/permissions" class="nav-item" active-class="router-link-active">
           <span class="icon" aria-hidden>
             <!-- logs icon -->
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 6h8M8 12h8M8 18h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -35,7 +35,7 @@
           <span class="label">日志管理</span>
         </router-link>
 
-        <router-link to="/admin/system" class="nav-item">
+  <router-link to="/admin/system" class="nav-item" active-class="router-link-active">
           <span class="icon" aria-hidden>
             <!-- organization icon -->
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7h18M12 7v14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="4" r="1.8" stroke="currentColor" stroke-width="1.2"/><circle cx="18" cy="4" r="1.8" stroke="currentColor" stroke-width="1.2"/></svg>
