@@ -106,11 +106,15 @@
 
         <div style="margin-top:12px">
           <label class="label">赋予权限（可选）</label>
-          <div v-for="(items, group) in permissionGroups" :key="group" style="margin-bottom:8px">
-            <div style="font-weight:600;margin-bottom:6px">{{group}}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:8px">
-              <label v-for="p in items" :key="p.id" style="display:flex;align-items:center;gap:6px">
-                <input type="checkbox" :value="p.id" v-model="form.perms" /> {{p.action}}
+          <div v-for="(items, group) in permissionGroups" :key="group" class="perm-group" style="margin-bottom:8px">
+            <div class="perm-group-header" @click="toggleGroup(group)">
+              <svg class="chev" :class="{open: openGroups[group]}" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <div style="font-weight:600">{{group}}</div>
+            </div>
+            <div class="perm-list" v-show="openGroups[group]">
+              <label v-for="p in items" :key="p.id" class="perm-item">
+                <input class="perm-check" type="checkbox" :value="p.id" v-model="form.perms" />
+                <span class="perm-text" :class="{disabled: !permForm.includes(p.id)}">{{p.action}}</span>
               </label>
             </div>
           </div>
@@ -136,20 +140,23 @@
 
         <div style="margin-top:8px">
           <label class="label">权限信息</label>
-          <div v-for="(items, group) in permissionGroups" :key="group" style="margin-bottom:10px">
-            <div style="font-weight:600;margin-bottom:6px">{{group}}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:8px">
-              <label v-for="p in items" :key="p.id" style="display:flex;align-items:center;gap:6px">
-                <input type="checkbox" :value="p.id" v-model="permForm" /> {{p.action}}
-              </label>
+          <div v-for="(items, group) in permissionGroups" :key="group" class="perm-group" style="margin-bottom:10px">
+            <div class="perm-group-header" @click="toggleGroup(group)">
+              <svg class="chev" :class="{open: openGroups[group]}" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <div style="font-weight:600">{{group}}</div>
+            </div>
+            <div class="perm-list" v-show="openGroups[group]">
+              <div v-for="p in items" :key="p.id" class="perm-item readonly">
+                <span class="perm-indicator" :class="{has: permForm.includes(p.id)}" aria-hidden="true">
+                  <svg v-if="permForm.includes(p.id)" width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 4L4 7L9 1" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="perm-text">{{p.action}}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <template #footer>
-        <button class="btn btn-ghost" @click="closePerms">返回</button>
-        <button class="btn btn-primary" @click="confirmSavePerms">确定修改</button>
-      </template>
+      <!-- details modal is read-only; no footer actions -->
     </Modal>
   </div>
 </template>
@@ -196,6 +203,14 @@ const showModal = ref(false)
 const editing = ref(null)
 const form = ref({ roleClass: 'custom', name: '', desc: '', perms: [] })
 
+// track which permission groups are expanded
+const openGroups = ref({})
+
+function toggleGroup(name){
+  if (!Object.prototype.hasOwnProperty.call(openGroups.value, name)) openGroups.value[name] = true
+  else openGroups.value[name] = !openGroups.value[name]
+}
+
 const showPerms = ref(false)
 const currentRole = ref(null)
 const permForm = ref([])
@@ -227,7 +242,13 @@ function save(){
 function remove(r){ if(confirm('删除角色 '+r.name+' ?')) roles.value = roles.value.filter(x=>x.id!==r.id) }
 function cancel(){ showModal.value = false }
 
-function openPerms(r){ currentRole.value = r; permForm.value = Array.from(r.perms || []); showPerms.value = true }
+function openPerms(r){
+  currentRole.value = r
+  permForm.value = Array.from(r.perms || [])
+  // expand all permission groups for clear overview
+  Object.keys(permissionGroups.value).forEach(k => { openGroups.value[k] = true })
+  showPerms.value = true
+}
 function closePerms(){ showPerms.value = false }
 function savePerms(){
   if (!currentRole.value) return
@@ -326,5 +347,25 @@ function highlightName(name){
 
 .btn-search{background:linear-gradient(180deg,#3b82f6,#2563eb);color:#fff;padding:8px 12px;border-radius:12px;border:none;box-shadow:0 6px 18px rgba(37,99,235,0.12)}
 .search{min-width:220px}
+
+/* permission accordion */
+.perm-group{border:1px solid var(--surface-border);border-radius:10px;padding:8px;background:linear-gradient(180deg,#fff,#fbfffb)}
+.perm-group-header{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px}
+.perm-group-header .chev{transition:transform .18s ease;color:var(--muted)}
+.perm-group-header .chev.open{transform:rotate(180deg);color:var(--primary)}
+.perm-list{display:flex;flex-direction:column;padding:6px 6px 8px 28px;gap:6px}
+.perm-item{display:flex;align-items:center;gap:8px}
+.perm-check{width:18px;height:18px;appearance:none;-webkit-appearance:none;border:1.5px solid var(--surface-border);background:#fff;border-radius:4px;position:relative}
+.perm-check:checked{background:linear-gradient(90deg,var(--primary),var(--accent));border-color:transparent}
+.perm-check:checked::after{content:'';position:absolute;left:5px;top:3px;width:5px;height:9px;border:2px solid #fff;border-left:none;border-top:none;transform:rotate(45deg)}
+.perm-text{font-size:14px}
+.perm-item.readonly{display:flex;align-items:center;gap:12px;padding:6px 8px;border-radius:8px}
+.perm-indicator{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;border:1px solid #e6eef0;background:#f5f7f8}
+.perm-indicator.has{background:linear-gradient(90deg,var(--primary),var(--accent));border-color:transparent}
+.perm-indicator.has svg{display:block}
+.perm-indicator svg{display:none}
+.perm-item.readonly .perm-text{color:var(--text)}
+.perm-text.disabled{color:#9aa3a3}
+.perm-item.readonly .perm-text{font-size:14px}
 
 </style>
