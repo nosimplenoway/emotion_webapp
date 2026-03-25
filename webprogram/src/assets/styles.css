@@ -37,7 +37,7 @@ a{color:inherit}
 .input:focus{box-shadow:0 6px 18px rgba(16,185,129,0.08);border-color:var(--accent);outline:none}
 
 /* subtle card hover */
-.card:hover{transform:translateY(-4px);transition:transform .18s ease, box-shadow .18s ease}
+/* .card:hover{transform:translateY(-4px);transition:transform .18s ease, box-shadow .18s ease} 我认为没必要抬高*/
 
 /* Tooltip helper */
 .tooltip{position:relative}
