@@ -71,7 +71,7 @@
         </div>
 
         <div class="login-actions centered-actions" style="margin-top:22px">
-          <button class="btn login-main" type="submit" aria-label="登录">登录</button>
+          <button class="btn login-main" :disabled="isSubmitting" type="submit" aria-label="登录">{{ isSubmitting ? '登录中...' : '登录' }}</button>
           <a class="forget" href="#" @click.prevent="openForgot">忘记密码？</a>
         </div>
       </form>
@@ -111,6 +111,7 @@
 import { ref, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Modal from '../components/Modal.vue'
+import CryptoJS from 'crypto-js'
 
 const phone = ref('')
 const password = ref('')
@@ -118,7 +119,6 @@ const role = ref('admin')
 const showForgot = ref(false)
 const forgotPhone = ref('')
 const showPassword = ref(false)
-// 忘记密码流程状态
 const forgotStep = ref(1)
 const forgotCode = ref('')
 const newPassword = ref('')
@@ -126,8 +126,15 @@ const confirmPassword = ref('')
 const forgotSending = ref(false)
 const forgotCooldown = ref(0)
 let forgotTimer = null
+const isSubmitting = ref(false)
 const router = useRouter()
 const route = useRoute()
+
+// 你要求的 MD5 加密函数（原样使用）
+const encryptPassword = (password) => {
+  const SALT = ''; 
+  return CryptoJS.MD5(password).toString();
+};
 
 function openForgot(){
   forgotStep.value = 1
@@ -152,9 +159,7 @@ function sendForgotCode(){
     forgotCooldown.value -= 1
     if(forgotCooldown.value <= 0){ clearInterval(forgotTimer); forgotTimer = null; forgotSending.value = false; forgotCooldown.value = 0 }
   }, 1000)
-  // 模拟发送验证码
   setTimeout(()=>{ alert('已发送验证码（示例）：123456') }, 300)
-  // 进入下一步
   forgotStep.value = 2
 }
 
@@ -162,7 +167,6 @@ function submitReset(){
   if(!forgotCode.value.trim()){ alert('请输入验证码'); return }
   if(!newPassword.value || newPassword.value.length < 6){ alert('请输入至少6位的新密码'); return }
   if(newPassword.value !== confirmPassword.value){ alert('两次密码输入不一致'); return }
-  // 模拟重置成功
   alert('密码已重置（示例）。请使用新密码登录。')
   forgotStep.value = 3
 }
@@ -172,24 +176,76 @@ onBeforeUnmount(()=>{ if(forgotTimer) clearInterval(forgotTimer) })
 function validate() {
   const p = phone.value && phone.value.trim()
   if (!p) { alert('请输入手机号'); return false }
-  // 简单的中国手机号校验
   if (!/^1[3-9]\d{9}$/.test(p)) { alert('请输入有效的手机号'); return false }
   if (!password.value || password.value.length < 6) { alert('请输入至少6位的密码'); return false }
   return true
 }
 
-function onSubmit() {
+async function onSubmit() {
   if (!validate()) return
+  if (isSubmitting.value) return
+  isSubmitting.value = true
 
-  // 示例 token 结构：JSON + base64（注意：生产请使用后端返回的安全 token）
-  const tokenObj = { phone: phone.value.trim(), role: role.value, issuedAt: Date.now() }
-  localStorage.setItem('auth_token', btoa(JSON.stringify(tokenObj)))
-  localStorage.setItem('auth_role', role.value)
+  const encryptedPwd = encryptPassword(password.value.trim())
 
-  const redirect = route.query.redirect
-  const target = Array.isArray(redirect) ? redirect[0] : redirect
-  if (target) { router.push(String(target)); return }
-  router.push(role.value === 'admin' ? '/admin' : '/teacher')
+  const payload = {
+    identity: role.value,
+    phone: phone.value.trim(),
+    password: encryptedPwd
+  }
+
+  const formData = new URLSearchParams()
+  Object.entries(payload).forEach(([key, value]) => {
+    formData.append(key, String(value ?? ''))
+  })
+
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
+  const loginUrl = `${API_BASE.replace(/\/+$/, '')}/login`
+
+  try {
+    console.log('登录请求 URL', loginUrl)
+    console.log('登录请求 payload', Object.fromEntries(formData.entries()))
+
+    const res = await fetch(loginUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString()
+    })
+
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Error(`请求失败 ${res.status}: ${text}`)
+    }
+
+    const body = await res.json()
+    if (body.code !== 200) {
+      alert(body.message || '登录失败')
+      return
+    }
+
+    const data = body.data || {}
+    if (!data.token) {
+      alert('未收到登录 token')
+      return
+    }
+
+    localStorage.setItem('auth_token', data.token)
+    localStorage.setItem('auth_role', data.userType || role.value)
+
+    const redirect = route.query.redirect
+    const target = Array.isArray(redirect) ? redirect[0] : redirect
+    if (target) { router.push(String(target)); return }
+
+    const userType = data.userType || role.value
+    if (userType === 'admin' || userType === 'super_admin') router.push('/admin')
+    else router.push('/teacher')
+
+  } catch (err) {
+    console.error('登录请求出错', err)
+    alert(err.message || '登录请求发生错误')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
 
