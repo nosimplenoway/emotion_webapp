@@ -1,6 +1,35 @@
 ﻿<template>
   <div class="container">
-    <h2>日志管理</h2>
+    <div class="page-header">
+      <h2>日志管理</h2>
+      <div class="header-actions">
+        <button
+          class="btn btn-ghost"
+          :class="{ 'btn-disabled': !isSuperAdmin }"
+          :disabled="!isSuperAdmin"
+          @click="openLogSwitch"
+          :title="isSuperAdmin ? '' : '仅超管开放'"
+        >日志记录开关</button>
+        <button
+          class="btn btn-ghost"
+          :class="{ 'btn-disabled': !isSuperAdmin }"
+          :disabled="!isSuperAdmin"
+          @click="openCleanRule"
+          :title="isSuperAdmin ? '' : '仅超管开放'"
+        >日志清理规则</button>
+        <button
+          class="btn btn-ghost"
+          :class="{ 'btn-disabled': !isSuperAdmin }"
+          :disabled="!isSuperAdmin"
+          @click="openMaskRule"
+          :title="isSuperAdmin ? '' : '仅超管开放'"
+        >日志脱敏规则</button>
+        <button class="btn btn-ghost" @click="openHistory">查看日志清理历史</button>
+        <button class="btn btn-primary" :disabled="isLoading || isExporting" @click="exportLogs">
+          {{ isExporting ? '导出中...' : '导出日志' }}
+        </button>
+      </div>
+    </div>
     <div class="card" style="margin-top:12px">
       <div class="query-panel">
         <div class="query-grid">
@@ -50,33 +79,6 @@
 
       <div class="top-controls" style="margin-top:12px">
         <div class="left tip-text">按时间倒序展示操作日志（共 {{ pagination.total }} 条）</div>
-        <div class="right">
-          <button
-            class="btn btn-ghost"
-            :class="{ 'btn-disabled': !isSuperAdmin }"
-            :disabled="!isSuperAdmin"
-            @click="openLogSwitch"
-            :title="isSuperAdmin ? '' : '仅超管开放'"
-          >日志记录开关</button>
-          <button
-            class="btn btn-ghost"
-            :class="{ 'btn-disabled': !isSuperAdmin }"
-            :disabled="!isSuperAdmin"
-            @click="openCleanRule"
-            :title="isSuperAdmin ? '' : '仅超管开放'"
-          >日志清理规则</button>
-          <button
-            class="btn btn-ghost"
-            :class="{ 'btn-disabled': !isSuperAdmin }"
-            :disabled="!isSuperAdmin"
-            @click="openMaskRule"
-            :title="isSuperAdmin ? '' : '仅超管开放'"
-          >日志脱敏规则</button>
-          <button class="btn btn-ghost" @click="openHistory">查看日志清理历史</button>
-          <button class="btn btn-primary" :disabled="isLoading || isExporting" @click="exportLogs">
-            {{ isExporting ? '导出中...' : '导出日志' }}
-          </button>
-        </div>
       </div>
 
       <table class="table">
@@ -918,6 +920,21 @@ onMounted(() => {
   gap: 10px;
 }
 
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .tip-text {
   color: var(--muted);
   font-size: 13px;
@@ -1040,6 +1057,16 @@ onMounted(() => {
 }
 
 @media (max-width: 980px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
   .query-grid {
     grid-template-columns: 1fr;
   }
