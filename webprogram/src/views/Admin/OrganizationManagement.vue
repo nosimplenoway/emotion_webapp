@@ -17,28 +17,30 @@
       <div class="org-tree" style="margin-top:16px">
         <template v-for="college in treeData" :key="college.id">
           <div class="tree-node">
-            <div class="node-header" @click="toggleExpand(college.id)">
+            <div class="node-header" @click="toggleExpand(college, 'college')">
               <span class="expand-icon">{{ expanded[college.id] ? '▼' : '▶' }}</span>
               <strong>{{ college.name }}</strong>
-              <span :class="getNodeStatus(college) === 'normal' ? 'status-normal' : 'status-disabled'" style="margin-left:12px">
-                {{ getNodeStatus(college) === 'normal' ? '正常' : '禁用' }}
+              <span :class="college.status === 'normal' ? 'status-normal' : 'status-disabled'" style="margin-left:12px">
+                {{ college.status === 'normal' ? '正常' : '禁用' }}
               </span>
             </div>
 
             <div v-if="expanded[college.id]" class="children">
               <div v-for="major in college.children" :key="major.id" class="tree-node">
-                <div class="node-header" @click="toggleExpand(major.id)" style="margin-left:32px">
+                <div class="node-header" @click="toggleExpand(major, 'major')" style="margin-left:32px">
                   <span class="expand-icon">{{ expanded[major.id] ? '▼' : '▶' }}</span>
                   <strong>{{ major.name }}</strong>
-                  <span :class="getNodeStatus(major) === 'normal' ? 'status-normal' : 'status-disabled'" style="margin-left:12px">
-                    {{ getNodeStatus(major) === 'normal' ? '正常' : '禁用' }}
+                  <span :class="major.status === 'normal' ? 'status-normal' : 'status-disabled'" style="margin-left:12px">
+                    {{ major.status === 'normal' ? '正常' : '禁用' }}
                   </span>
                 </div>
 
                 <div v-if="expanded[major.id]" class="children">
                   <div v-for="cls in major.children" :key="cls.id" class="tree-node leaf" style="margin-left:64px">
                     <span>{{ cls.name }}</span>
-                    <span class="status-normal" style="margin-left:12px">正常</span>
+                    <span :class="cls.status === 'normal' ? 'status-normal' : 'status-disabled'" style="margin-left:12px">
+                      {{ cls.status === 'normal' ? '正常' : '禁用' }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -58,13 +60,13 @@
 import { ref, onMounted } from 'vue'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
-const token = localStorage.getItem('auth_token')
 
 const treeData = ref([])
 const searchQuery = ref('')
 const expanded = ref({})
 
 const fetchWithAuth = async (url) => {
+  const token = localStorage.getItem('auth_token')
   const res = await fetch(url, {
     headers: {
       Authorization: token ? `Bearer ${token}` : '',
@@ -76,17 +78,10 @@ const fetchWithAuth = async (url) => {
   return json.data
 }
 
-const getNodeStatus = (node) => {
-  if (node.children && node.children.length > 0) {
-    const hasNormal = node.children.some(child => getNodeStatus(child) === 'normal')
-    return hasNormal ? 'normal' : 'disabled'
-  }
-  return 'normal'   
-}
 
 const loadColleges = async () => {
   try {
-    const params = searchQuery.value ? `?collegeName=${encodeURIComponent(searchQuery.value)}` : ''
+    const params = searchQuery.value ? `?keyword=${encodeURIComponent(searchQuery.value)}` : ''
     const data = await fetchWithAuth(`${API_BASE}/api/org/college${params}`)
 
     treeData.value = data.college_list.map(c => ({
@@ -101,16 +96,13 @@ const loadColleges = async () => {
   }
 }
 
-const toggleExpand = async (id) => {
-  expanded.value[id] = !expanded.value[id]
-  if (!expanded.value[id]) return
-
-  let node = treeData.value.find(n => n.id === id)
-  if (!node) node = treeData.value.flatMap(c => c.children).find(n => n.id === id)
-  if (!node || node.children.length > 0) return
+const toggleExpand = async (node, type) => {
+  expanded.value[node.id] = !expanded.value[node.id]
+  
+  if (!expanded.value[node.id] || node.children.length > 0) return
 
   try {
-    if (node.id < 100) {  
+    if (type === 'college') {  
       const data = await fetchWithAuth(`${API_BASE}/api/org/college/${node.id}/major`)
       node.children = data.major_list.list.map(m => ({
         id: m.major_id,
@@ -118,12 +110,13 @@ const toggleExpand = async (id) => {
         status: m.status === 1 ? 'normal' : 'disabled',
         children: []
       }))
-    } else {  
+    } else if (type === 'major') {  
       const data = await fetchWithAuth(`${API_BASE}/api/org/major/${node.id}/grade-class`)
       node.children = data.class_list.list.map(cls => ({
         id: cls.class_id,
         name: cls.class_name,
-        status: 'normal'
+        // 确保班级的数据状态也能被正常映射
+        status: cls.status === 1 ? 'normal' : 'disabled', 
       }))
     }
   } catch (err) {
