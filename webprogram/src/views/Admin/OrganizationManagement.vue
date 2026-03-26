@@ -66,7 +66,6 @@ const searchQuery = ref('')
 const expanded = ref({})
 
 const fetchWithAuth = async (url) => {
-  // 修复 Bug 4：将 token 获取移入函数内部。防止用户登录状态变化后，这里使用的还是旧的 null 值
   const token = localStorage.getItem('auth_token')
   const res = await fetch(url, {
     headers: {
@@ -79,12 +78,9 @@ const fetchWithAuth = async (url) => {
   return json.data
 }
 
-// 删除了导致性能问题的 getNodeStatus() 函数
 
 const loadColleges = async () => {
   try {
-    // 提醒：这里我将搜索参数改为了 keyword，以符合你“搜索学院/专业/班级”的全局搜索逻辑。
-    // 如果后端接口没有全局搜索，且强制要求传 collegeName，请将 `keyword=` 改回 `collegeName=`
     const params = searchQuery.value ? `?keyword=${encodeURIComponent(searchQuery.value)}` : ''
     const data = await fetchWithAuth(`${API_BASE}/api/org/college${params}`)
 
@@ -100,11 +96,9 @@ const loadColleges = async () => {
   }
 }
 
-// 修复 Bug 5：通过 node 和 type 参数，彻底消除 `node.id < 100` 这种极度危险的魔术数字判断
 const toggleExpand = async (node, type) => {
   expanded.value[node.id] = !expanded.value[node.id]
   
-  // 如果是收起节点，或者节点已经加载过子数据，则不再发送网络请求
   if (!expanded.value[node.id] || node.children.length > 0) return
 
   try {
@@ -138,7 +132,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 样式原封不动，完全保持你原有的设计 */
 .card { background:#fff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.05); padding:24px; }
 .top-controls { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
 .search { width:340px; padding:11px 14px; border:1px solid #e5e7eb; border-radius:10px; font-size:15px; }
