@@ -15,40 +15,48 @@
       </div>
 
       <div class="org-tree" style="margin-top:16px">
-        <template v-for="college in treeData" :key="college.id">
-          <div class="tree-node">
-            <div class="node-header" @click="toggleExpand(college, 'college')">
-              <span class="expand-icon">{{ expanded[college.id] ? '▼' : '▶' }}</span>
-              <strong>{{ college.name }}</strong>
-              <span :class="college.status === 'normal' ? 'status-normal' : 'status-disabled'" style="margin-left:12px">
-                {{ college.status === 'normal' ? '正常' : '禁用' }}
-              </span>
-            </div>
+        <div v-if="isLoading" class="loading-state" style="padding: 40px 0; text-align: center; color: #666;">
+          <strong>数据加载中，请稍候...</strong>
+        </div>
 
-            <div v-if="expanded[college.id]" class="children">
-              <div v-for="major in college.children" :key="major.id" class="tree-node">
-                <div class="node-header" @click="toggleExpand(major, 'major')" style="margin-left:32px">
-                  <span class="expand-icon">{{ expanded[major.id] ? '▼' : '▶' }}</span>
-                  <strong>{{ major.name }}</strong>
-                  <span :class="major.status === 'normal' ? 'status-normal' : 'status-disabled'" style="margin-left:12px">
-                    {{ major.status === 'normal' ? '正常' : '禁用' }}
-                  </span>
-                </div>
+        <template v-else-if="treeData.length > 0">
+          <template v-for="college in treeData" :key="`college_${college.id}`">
+            <div class="tree-node">
+              <div class="node-header" @click="toggleExpand(college, 'college')">
+                <span class="expand-icon">{{ expanded[`college_${college.id}`] ? '▼' : '▶' }}</span>
+                <strong>{{ college.name }}</strong>
+                <span :class="college.status === 'normal' ? 'status-normal' : 'status-disabled'" style="margin-left:12px">
+                  {{ college.status === 'normal' ? '正常' : '禁用' }}
+                </span>
+              </div>
 
-                <div v-if="expanded[major.id]" class="children">
-                  <div v-for="cls in major.children" :key="cls.id" class="tree-node leaf" style="margin-left:64px">
-                    <span>{{ cls.name }}</span>
-                    <span :class="cls.status === 'normal' ? 'status-normal' : 'status-disabled'" style="margin-left:12px">
-                      {{ cls.status === 'normal' ? '正常' : '禁用' }}
+              <div v-if="expanded[`college_${college.id}`]" class="children">
+                <div v-for="major in college.children" :key="`major_${major.id}`" class="tree-node">
+                  <div class="node-header" @click="toggleExpand(major, 'major')" style="margin-left:32px">
+                    <span class="expand-icon">{{ expanded[`major_${major.id}`] ? '▼' : '▶' }}</span>
+                    <strong>{{ major.name }}</strong>
+                    <span :class="major.status === 'normal' ? 'status-normal' : 'status-disabled'" style="margin-left:12px">
+                      {{ major.status === 'normal' ? '正常' : '禁用' }}
                     </span>
+                  </div>
+
+                  <div v-if="expanded[`major_${major.id}`]" class="children">
+                    <div v-for="cls in major.children" :key="`class_${cls.id}`" class="tree-node leaf" style="margin-left:64px">
+                      <div class="node-header">
+                        <span>{{ cls.name }}</span>
+                        <span :class="cls.status === 'normal' ? 'status-normal' : 'status-disabled'" style="margin-left:12px">
+                          {{ cls.status === 'normal' ? '正常' : '禁用' }}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </template>
         </template>
 
-        <div v-if="treeData.length === 0" class="empty-state" style="margin-top:30px">
+        <div v-else class="empty-state" style="margin-top:30px">
           <strong>暂无数据</strong>
         </div>
       </div>
@@ -64,6 +72,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
 const treeData = ref([])
 const searchQuery = ref('')
 const expanded = ref({})
+const isLoading = ref(false) // 控制加载状态
 
 const fetchWithAuth = async (url) => {
   const token = localStorage.getItem('auth_token')
@@ -78,50 +87,81 @@ const fetchWithAuth = async (url) => {
   return json.data
 }
 
-
 const loadColleges = async () => {
   try {
+    isLoading.value = true // 开启加载遮罩
     const params = searchQuery.value ? `?keyword=${encodeURIComponent(searchQuery.value)}` : ''
     const data = await fetchWithAuth(`${API_BASE}/api/org/college${params}`)
 
-    treeData.value = data.college_list.map(c => ({
+    let colleges = data.college_list.map(c => ({
       id: c.college_id,
       name: c.college_name,
       status: c.status === 1 ? 'normal' : 'disabled',
-      children: []
+      children: [],
+      loaded: false
     }))
+
+    // 阻塞式请求所有子节点数据并计算状态
+    await Promise.all(colleges.map(async (college) => {
+      try {
+        const majorData = await fetchWithAuth(`${API_BASE}/api/org/college/${college.id}/major`)
+        const majors = majorData.major_list.list.map(m => ({
+          id: m.major_id,
+          name: m.major_name,
+          status: m.status === 1 ? 'normal' : 'disabled',
+          children: [],
+          loaded: false
+        }))
+        
+        college.children = majors
+        college.loaded = true
+
+        await Promise.all(majors.map(async (major) => {
+          try {
+            const classData = await fetchWithAuth(`${API_BASE}/api/org/major/${major.id}/grade-class`)
+            const classes = classData.class_list.list.map(cls => ({
+              id: cls.class_id,
+              name: cls.class_name,
+              status: cls.status === 0 ? 'disabled' : 'normal' 
+            }))
+            
+            major.children = classes
+            major.loaded = true
+            
+            // 加入 classes.length > 0 判断。只有当“有班级数据”并且“所有班级都是禁用”时，才往上推导禁用。防止空专业把学院给禁了。
+            if (classes.length > 0 && classes.every(cls => cls.status === 'disabled')) {
+              major.status = 'disabled'
+              college.status = 'disabled'
+            }
+          } catch (e) {
+            console.error(`加载专业 ${major.name} 的班级失败`, e)
+          }
+        }))
+
+        if (majors.length > 0 && majors.every(m => m.status === 'disabled')) {
+          college.status = 'disabled'
+        }
+
+      } catch (err) {
+        console.error(`加载学院 ${college.name} 的数据失败`, err)
+      }
+    }))
+
+    //所有状态全部计算好后赋值
+    treeData.value = colleges
+
   } catch (err) {
     console.error(err)
-    alert('加载学院失败，请检查后端是否启动')
+    alert('加载数据失败，请检查后端是否启动')
+  } finally {
+    isLoading.value = false 
   }
 }
 
 const toggleExpand = async (node, type) => {
-  expanded.value[node.id] = !expanded.value[node.id]
-  
-  if (!expanded.value[node.id] || node.children.length > 0) return
-
-  try {
-    if (type === 'college') {  
-      const data = await fetchWithAuth(`${API_BASE}/api/org/college/${node.id}/major`)
-      node.children = data.major_list.list.map(m => ({
-        id: m.major_id,
-        name: m.major_name,
-        status: m.status === 1 ? 'normal' : 'disabled',
-        children: []
-      }))
-    } else if (type === 'major') {  
-      const data = await fetchWithAuth(`${API_BASE}/api/org/major/${node.id}/grade-class`)
-      node.children = data.class_list.list.map(cls => ({
-        id: cls.class_id,
-        name: cls.class_name,
-        // 确保班级的数据状态也能被正常映射
-        status: cls.status === 1 ? 'normal' : 'disabled', 
-      }))
-    }
-  } catch (err) {
-    console.error(err)
-  }
+  const expandKey = `${type}_${node.id}`
+  expanded.value[expandKey] = !expanded.value[expandKey]
+  // 展开时直接使用预先计算好的树数据，纯本地交互
 }
 
 const search = () => loadColleges()
@@ -147,6 +187,7 @@ onMounted(() => {
 
 .children { margin-left:22px; margin-top:4px; }
 
+/* 叶子节点（班级）样式现在可以正确生效了 */
 .leaf .node-header { 
   padding:10px 14px; 
   background:#fafcfc; 
